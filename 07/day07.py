@@ -107,23 +107,17 @@ class FileTree:
         for c in children:
             self.cwd.children.append(c)
 
-    def find_by_size(self, max_size):
-        if self.root.size < max_size:
-            return self.root.size
-        s = 0
-        for el in self.root.children:
-            s += self._find_by_size(el, max_size)
-        return s
 
-    def _find_by_size(self, el, max_size):
-        if el.get_size() <= max_size:
-            return el.get_size()
-        if hasattr(el, "children"):
-            sizes = 0
-            for element in el.children:
-                sizes += self._find_by_size(element, max_size)
-            return sizes
-        return 0
+def get_by_size(element, max_size):
+    size = 0
+    if element.get_size() <= max_size:
+        size += element.get_size()
+    if hasattr(element, "children"):
+        for child in element.children:
+            if isinstance(child, Folder):
+                size += get_by_size(child, max_size)
+    # element is of bigger size or is an empty folder with size 0
+    return size
 
 
 if __name__ == '__main__':
@@ -152,5 +146,5 @@ if __name__ == '__main__':
     tree.root.get_size()
     print("[LOG] Calculation of folder sizes completed")
     print("[LOG] Start calculation for challenge 1")
-    print(tree.find_by_size(100000))
+    print(get_by_size(tree.root, 100000))
     print("[LOG] Challenge 1 computed")
